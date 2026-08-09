@@ -1,0 +1,1119 @@
+basePath: /
+definitions:
+  github_com_desen_track-me_internal_dto.APIResponse:
+    properties:
+      data: {}
+      errors:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  github_com_desen_track-me_internal_dto.BlockUserRequest:
+    properties:
+      user_id:
+        type: string
+    required:
+    - user_id
+    type: object
+  github_com_desen_track-me_internal_dto.ChangePasswordRequest:
+    properties:
+      new_password:
+        maxLength: 72
+        minLength: 8
+        type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  github_com_desen_track-me_internal_dto.FriendRequestResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      receiver:
+        $ref: '#/definitions/github_com_desen_track-me_internal_dto.UserResponse'
+      sender:
+        $ref: '#/definitions/github_com_desen_track-me_internal_dto.UserResponse'
+      status:
+        type: string
+    type: object
+  github_com_desen_track-me_internal_dto.LocationResponse:
+    properties:
+      accuracy:
+        type: number
+      activity:
+        type: string
+      altitude:
+        type: number
+      battery:
+        type: integer
+      bearing:
+        type: number
+      charging:
+        type: boolean
+      gps_provider:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      mock_location:
+        type: boolean
+      speed:
+        type: number
+      timestamp:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_desen_track-me_internal_dto.LocationUpdateRequest:
+    properties:
+      accuracy:
+        type: number
+      activity:
+        type: string
+      altitude:
+        type: number
+      battery:
+        type: integer
+      bearing:
+        type: number
+      charging:
+        type: boolean
+      gps_provider:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      mock_location:
+        type: boolean
+      speed:
+        type: number
+    required:
+    - latitude
+    - longitude
+    type: object
+  github_com_desen_track-me_internal_dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  github_com_desen_track-me_internal_dto.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+      user:
+        $ref: '#/definitions/github_com_desen_track-me_internal_dto.UserResponse'
+    type: object
+  github_com_desen_track-me_internal_dto.NotificationResponse:
+    properties:
+      body:
+        type: string
+      created_at:
+        type: string
+      data:
+        type: string
+      id:
+        type: string
+      read:
+        type: boolean
+      title:
+        type: string
+      type:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_desen_track-me_internal_dto.PaginatedResponse:
+    properties:
+      data: {}
+      limit:
+        type: integer
+      message:
+        type: string
+      page:
+        type: integer
+      success:
+        type: boolean
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  github_com_desen_track-me_internal_dto.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  github_com_desen_track-me_internal_dto.RegisterRequest:
+    properties:
+      display_name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      email:
+        type: string
+      password:
+        maxLength: 72
+        minLength: 8
+        type: string
+    required:
+    - display_name
+    - email
+    - password
+    type: object
+  github_com_desen_track-me_internal_dto.RespondFriendRequest:
+    properties:
+      accept:
+        type: boolean
+      request_id:
+        type: string
+    required:
+    - request_id
+    type: object
+  github_com_desen_track-me_internal_dto.SendFriendRequest:
+    properties:
+      receiver_email:
+        type: string
+    required:
+    - receiver_email
+    type: object
+  github_com_desen_track-me_internal_dto.SharingApproval:
+    properties:
+      approve:
+        type: boolean
+      notification_id:
+        type: string
+    required:
+    - notification_id
+    type: object
+  github_com_desen_track-me_internal_dto.SharingRequest:
+    properties:
+      friend_id:
+        type: string
+    required:
+    - friend_id
+    type: object
+  github_com_desen_track-me_internal_dto.UpdateProfileRequest:
+    properties:
+      avatar:
+        maxLength: 500
+        type: string
+      display_name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      phone:
+        maxLength: 20
+        type: string
+      status_message:
+        maxLength: 255
+        type: string
+    type: object
+  github_com_desen_track-me_internal_dto.UserResponse:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      display_name:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      phone:
+        type: string
+      status_message:
+        type: string
+      updated_at:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Backend REST & WebSocket API for lightweight, privacy-focused mutual
+    location sharing.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Mutual Location Sharing API
+  version: "1.0"
+paths:
+  /api/v1/auth/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Update password for the authenticated user and invalidate all other
+        sessions
+      parameters:
+      - description: Change Password Details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_desen_track-me_internal_dto.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password updated successfully
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "400":
+          description: Validation or mismatch error
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized or incorrect old password
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Change user password
+      tags:
+      - Auth
+  /api/v1/auth/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Permanently delete the authenticated user account and all session
+        data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Account deleted successfully
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete account
+      tags:
+      - Auth
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return token pair
+      parameters:
+      - description: Login Credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_desen_track-me_internal_dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged in
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_desen_track-me_internal_dto.LoginResponse'
+              type: object
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      summary: Login user
+      tags:
+      - Auth
+  /api/v1/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Invalidate current user session and refresh token
+      parameters:
+      - description: Refresh Token to invalidate
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_desen_track-me_internal_dto.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged out
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Logout user
+      tags:
+      - Auth
+  /api/v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get a new access and refresh token pair using a valid refresh token
+      parameters:
+      - description: Refresh Token Details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_desen_track-me_internal_dto.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token refreshed
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_desen_track-me_internal_dto.LoginResponse'
+              type: object
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Invalid or expired session
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      summary: Refresh token pair
+      tags:
+      - Auth
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new account with email, password, and display name
+      parameters:
+      - description: Register Request Details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_desen_track-me_internal_dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully registered
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_desen_track-me_internal_dto.UserResponse'
+              type: object
+        "400":
+          description: Validation or duplicate email error
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      summary: Register a new user
+      tags:
+      - Auth
+  /api/v1/friend/block:
+    post:
+      consumes:
+      - application/json
+      description: Block a user, remove friendship, and revoke any location sharing
+      parameters:
+      - description: User ID to block
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_desen_track-me_internal_dto.BlockUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User blocked successfully
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Block a user
+      tags:
+      - Friend
+  /api/v1/friend/blocked:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all users blocked by the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/github_com_desen_track-me_internal_dto.UserResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get blocked users list
+      tags:
+      - Friend
+  /api/v1/friend/list:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all friends of the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/github_com_desen_track-me_internal_dto.UserResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get friends list
+      tags:
+      - Friend
+  /api/v1/friend/remove/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Terminate friendship with a user by ID
+      parameters:
+      - description: Friend User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Friend removed successfully
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove a friend
+      tags:
+      - Friend
+  /api/v1/friend/request:
+    post:
+      consumes:
+      - application/json
+      description: Initiate a friendship request to another user by email
+      parameters:
+      - description: Friend request payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_desen_track-me_internal_dto.SendFriendRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Request sent
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_desen_track-me_internal_dto.FriendRequestResponse'
+              type: object
+        "400":
+          description: Bad request (self friending or duplicate)
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Send friend request
+      tags:
+      - Friend
+  /api/v1/friend/requests:
+    get:
+      consumes:
+      - application/json
+      description: List all incoming pending friend requests for the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/github_com_desen_track-me_internal_dto.FriendRequestResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get pending requests
+      tags:
+      - Friend
+  /api/v1/friend/respond:
+    post:
+      consumes:
+      - application/json
+      description: Accept or reject a pending friend request
+      parameters:
+      - description: Response payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_desen_track-me_internal_dto.RespondFriendRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Request responded successfully
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "400":
+          description: Validation or logical error
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Respond to friend request
+      tags:
+      - Friend
+  /api/v1/friend/unblock/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a user from your block list
+      parameters:
+      - description: Blocked User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User unblocked successfully
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Unblock a user
+      tags:
+      - Friend
+  /api/v1/location/current/{userId}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the latest GPS location of a friend if mutual sharing
+        is active
+      parameters:
+      - description: Friend User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_desen_track-me_internal_dto.LocationResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized or sharing not enabled
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get friend's current location
+      tags:
+      - Location
+  /api/v1/location/history/{userId}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve location history of a friend if mutual sharing is active
+      parameters:
+      - description: Friend User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      - description: Start timestamp in ISO 8601 / RFC 3339 format
+        in: query
+        name: start
+        required: true
+        type: string
+      - description: End timestamp in ISO 8601 / RFC 3339 format
+        in: query
+        name: end
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/github_com_desen_track-me_internal_dto.LocationResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized or sharing not enabled
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get friend's location history
+      tags:
+      - Location
+  /api/v1/location/update:
+    post:
+      consumes:
+      - application/json
+      description: Update user's current GPS location and broadcast it to active sharing
+        friends
+      parameters:
+      - description: GPS data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_desen_track-me_internal_dto.LocationUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Location updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_desen_track-me_internal_dto.LocationResponse'
+              type: object
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Post location update
+      tags:
+      - Location
+  /api/v1/notification/list:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a paginated list of notifications for the authenticated
+        user
+      parameters:
+      - description: Number of records to return (default 20)
+        in: query
+        name: limit
+        type: integer
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_desen_track-me_internal_dto.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/github_com_desen_track-me_internal_dto.NotificationResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: List notifications
+      tags:
+      - Notification
+  /api/v1/notification/read-all:
+    post:
+      consumes:
+      - application/json
+      description: Mark all unread notifications of user as read
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: All notifications marked as read
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Mark all notifications as read
+      tags:
+      - Notification
+  /api/v1/notification/read/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Mark a single notification as read by ID
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Notification marked as read
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Mark notification as read
+      tags:
+      - Notification
+  /api/v1/sharing/approve:
+    post:
+      consumes:
+      - application/json
+      description: Approve or deny a pending location sharing request
+      parameters:
+      - description: Sharing approval details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_desen_track-me_internal_dto.SharingApproval'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Approved or Denied successfully
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Approve location sharing request
+      tags:
+      - Location
+  /api/v1/sharing/request:
+    post:
+      consumes:
+      - application/json
+      description: Send a location sharing request to a friend
+      parameters:
+      - description: Sharing request details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_desen_track-me_internal_dto.SharingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Request sent successfully
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Request location sharing
+      tags:
+      - Location
+  /api/v1/sharing/revoke/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Stop sharing location with a friend
+      parameters:
+      - description: Friend User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Sharing revoked successfully
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Revoke location sharing
+      tags:
+      - Location
+  /api/v1/user/profile:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve profile information of the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_desen_track-me_internal_dto.UserResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user profile
+      tags:
+      - User
+    patch:
+      consumes:
+      - application/json
+      description: Update fields of authenticated user's profile dynamically
+      parameters:
+      - description: Profile fields to update
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_desen_track-me_internal_dto.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_desen_track-me_internal_dto.UserResponse'
+              type: object
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - User
+  /ws:
+    get:
+      description: 'Upgrade HTTP connection to WebSocket for real-time tracking updates.
+        Requires a valid token query param: `token=JWT_ACCESS_TOKEN` or Bearer header'
+      parameters:
+      - description: Access Token
+        in: query
+        name: token
+        required: true
+        type: string
+      responses:
+        "101":
+          description: Switching Protocols
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_desen_track-me_internal_dto.APIResponse'
+      summary: Connect to WebSocket
+      tags:
+      - Realtime
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token (e.g. Bearer <token>)
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

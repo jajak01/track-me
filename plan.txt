@@ -1,0 +1,866 @@
+# PLAN.md
+
+# Mutual Location Sharing Application
+**Version:** 1.0
+
+---
+
+# Project Goal
+
+Build a lightweight, privacy-focused mutual location sharing application for Android.
+
+The application is **NOT** intended for surveillance.
+
+Every user must explicitly agree to share their own location before another user can see it.
+
+Primary users:
+- Couples
+- Family members
+- Close friends
+
+The backend must be scalable enough to support thousands of users while remaining lightweight.
+
+---
+
+# Tech Stack
+
+## Android
+
+Language
+- Kotlin
+
+UI
+- Jetpack Compose
+
+Architecture
+- MVVM
+- Repository Pattern
+- Hilt Dependency Injection
+- Coroutines
+- Flow
+
+Networking
+- Retrofit
+- OkHttp
+
+JSON
+- Kotlin Serialization
+
+Location
+- Fused Location Provider
+
+Maps
+- OpenStreetMap
+
+Map Rendering
+- MapLibre Native Android SDK
+
+Reason:
+- Completely free
+- No Google Maps billing
+- Can switch tile providers later
+- Self-hosting possible
+
+Offline Cache
+- MBTiles (future)
+
+---
+
+## Backend
+
+Language
+- Go (latest stable)
+
+Framework
+- Gin
+
+ORM
+- GORM
+
+Authentication
+- JWT
+
+Password Hash
+- bcrypt
+
+Configuration
+- dotenv
+
+Validation
+- validator/v10
+
+Logging
+- zerolog
+
+Database Migration
+- golang-migrate
+
+UUID
+- google/uuid
+
+Realtime
+- Gorilla WebSocket
+
+Background Worker
+- Go routines
+
+Cron Jobs
+- robfig/cron
+
+API Documentation
+- Swagger
+
+Container
+- Docker
+
+Reverse Proxy
+- Nginx
+
+Deployment
+- Docker Compose
+
+Future
+- Kubernetes Ready
+
+---
+
+## Database
+
+PostgreSQL
+
+Extensions
+
+- uuid-ossp
+- postgis (future)
+
+Connection Pool
+- pgx
+
+---
+
+## Storage
+
+No object storage required initially.
+
+Future:
+- MinIO
+- S3
+
+---
+
+# Overall Architecture
+
+Android
+
+↓
+
+REST API
+
+↓
+
+Go Backend
+
+↓
+
+PostgreSQL
+
+↓
+
+WebSocket
+
+↓
+
+Android
+
+---
+
+# Design Principles
+
+- Clean Architecture
+- SOLID
+- Repository Pattern
+- Dependency Injection
+- Stateless API
+- JWT Authentication
+- REST First
+- WebSocket for realtime
+- API Versioning
+
+---
+
+# Features
+
+## Authentication
+
+- Register
+- Login
+- Refresh Token
+- Logout
+- Change Password
+- Delete Account
+
+---
+
+## User Profile
+
+- Name
+- Avatar
+- Phone (optional)
+- Email
+- Status Message
+
+---
+
+## Friend System
+
+Send Friend Request
+
+Accept
+
+Reject
+
+Remove Friend
+
+Block User
+
+---
+
+## Mutual Tracking
+
+Location sharing ONLY works if BOTH users agree.
+
+Flow
+
+User A sends request
+
+↓
+
+User B accepts friend request
+
+↓
+
+User A requests location sharing
+
+↓
+
+User B approves
+
+↓
+
+Tracking enabled
+
+Either user can revoke access anytime.
+
+---
+
+# Live Location
+
+Every location contains
+
+Latitude
+
+Longitude
+
+Accuracy
+
+Altitude
+
+Bearing
+
+Speed
+
+Timestamp
+
+Battery Percentage
+
+Charging Status
+
+Activity Type
+
+Mock Location Flag
+
+GPS Provider
+
+---
+
+# Activity Types
+
+Unknown
+
+Still
+
+Walking
+
+Running
+
+Cycling
+
+Driving
+
+---
+
+# Location Update Strategy
+
+Moving Fast
+
+Update every 10 seconds
+
+Walking
+
+Update every 20 seconds
+
+Still
+
+Update every 5 minutes
+
+If battery is below 20%
+
+Update every 10 minutes
+
+If charging
+
+Normal interval
+
+---
+
+# API Design
+
+REST
+
+/api/v1/
+
+Example
+
+POST /auth/login
+
+POST /auth/register
+
+GET /user/profile
+
+PATCH /user/profile
+
+POST /friend/request
+
+POST /friend/accept
+
+DELETE /friend/remove
+
+POST /sharing/request
+
+POST /sharing/approve
+
+DELETE /sharing/revoke
+
+POST /location/update
+
+GET /location/current/{userId}
+
+GET /location/history
+
+GET /friend/list
+
+GET /notification/list
+
+---
+
+# WebSocket
+
+/ws
+
+Events
+
+location:update
+
+location:subscribe
+
+sharing:update
+
+friend:update
+
+notification
+
+heartbeat
+
+---
+
+# Database Tables
+
+users
+
+friend_requests
+
+friendships
+
+location_permissions
+
+locations
+
+devices
+
+sessions
+
+notifications
+
+refresh_tokens
+
+audit_logs
+
+---
+
+# Users Table
+
+UUID
+
+Email
+
+Password Hash
+
+Display Name
+
+Avatar
+
+CreatedAt
+
+UpdatedAt
+
+DeletedAt
+
+---
+
+# Friendships
+
+UUID
+
+UserA
+
+UserB
+
+Status
+
+CreatedAt
+
+---
+
+# Location Permission
+
+UUID
+
+OwnerID
+
+ViewerID
+
+Status
+
+GrantedAt
+
+RevokedAt
+
+---
+
+# Location Table
+
+UUID
+
+UserID
+
+Latitude
+
+Longitude
+
+Accuracy
+
+Altitude
+
+Bearing
+
+Speed
+
+Battery
+
+Charging
+
+Activity
+
+MockLocation
+
+Timestamp
+
+CreatedAt
+
+---
+
+# Notifications
+
+Friend Request
+
+Friend Accepted
+
+Sharing Request
+
+Sharing Approved
+
+Sharing Revoked
+
+SOS
+
+Arrival
+
+---
+
+# Security
+
+HTTPS Only
+
+JWT
+
+Refresh Token
+
+Password Hash
+
+Rate Limiting
+
+Input Validation
+
+SQL Injection Prevention
+
+Prepared Statements
+
+CORS
+
+Helmet Headers
+
+Audit Logs
+
+---
+
+# Privacy
+
+Location sharing is disabled by default.
+
+Every permission must be granted explicitly.
+
+Users can:
+
+Pause sharing
+
+Disable sharing
+
+Remove history
+
+Delete account
+
+Revoke permissions
+
+---
+
+# Future Features
+
+Geofence
+
+Home
+
+Office
+
+School
+
+Gym
+
+Arrival Notification
+
+Departure Notification
+
+Battery Alert
+
+Driving Detection
+
+Offline Cache
+
+Encrypted Location History
+
+Multiple Devices
+
+Wear OS
+
+Android Auto
+
+Emergency SOS
+
+Temporary Sharing
+
+Location Expiration
+
+---
+
+# Map Provider
+
+Use OpenStreetMap.
+
+Rendering Library
+
+MapLibre Native Android
+
+Tile Source
+
+https://tile.openstreetmap.org/{z}/{x}/{y}.png
+
+Future Support
+
+MapTiler
+
+OpenMapTiles
+
+Self-hosted Tiles
+
+---
+
+# API Response Format
+
+Success
+
+```json
+{
+    "success": true,
+    "message": "OK",
+    "data": {}
+}
+```
+
+Error
+
+```json
+{
+    "success": false,
+    "message": "Unauthorized",
+    "errors": []
+}
+```
+
+---
+
+# Folder Structure (Backend)
+
+```
+cmd/
+    api/
+
+internal/
+    auth/
+    user/
+    friend/
+    location/
+    websocket/
+    middleware/
+    config/
+    database/
+    notification/
+    repository/
+    service/
+    handler/
+    dto/
+    models/
+
+pkg/
+    jwt/
+    logger/
+    validator/
+
+docs/
+
+migrations/
+
+scripts/
+
+docker/
+
+tests/
+```
+
+---
+
+# Android Folder Structure
+
+```
+app/
+
+core/
+
+network/
+
+database/
+
+domain/
+
+repository/
+
+feature/
+
+feature/login
+
+feature/home
+
+feature/map
+
+feature/profile
+
+feature/friend
+
+feature/settings
+
+di/
+
+utils/
+
+ui/
+
+navigation/
+```
+
+---
+
+# Development Phases
+
+## Phase 1
+
+Backend Foundation
+
+- Project setup
+- PostgreSQL
+- Docker
+- Authentication
+- JWT
+- Swagger
+- Migration
+- Logging
+
+---
+
+## Phase 2
+
+Friend System
+
+- Friend Request
+- Accept
+- Reject
+- Remove
+
+---
+
+## Phase 3
+
+Permission System
+
+- Request Sharing
+- Accept Sharing
+- Revoke Sharing
+
+---
+
+## Phase 4
+
+Location API
+
+- Update Location
+- Get Current Location
+- Last Seen
+- History
+
+---
+
+## Phase 5
+
+Realtime
+
+- WebSocket
+- Live Location
+- Notifications
+
+---
+
+## Phase 6
+
+Android
+
+- Login
+- Map
+- Friend List
+- Live Tracking
+
+---
+
+## Phase 7
+
+Optimization
+
+- Battery Optimization
+- Compression
+- Caching
+- Rate Limiting
+
+---
+
+# Coding Standards
+
+Backend
+
+- Idiomatic Go
+- Context everywhere
+- No global state
+- Small packages
+- Interfaces where needed
+- Unit tests
+- Integration tests
+
+Android
+
+- Clean Architecture
+- Immutable UI State
+- StateFlow
+- ViewModel
+- Single Source of Truth
+
+---
+
+# AI Development Instructions
+
+When generating code, follow these rules:
+
+1. Always generate production-ready code.
+2. Follow Clean Architecture.
+3. Use dependency injection.
+4. Never hardcode secrets.
+5. Include comments only when necessary.
+6. Return proper HTTP status codes.
+7. Validate all incoming requests.
+8. Use transactions where required.
+9. Write modular code.
+10. Include unit tests where applicable.
+11. Use Swagger annotations for every endpoint.
+12. Support Docker deployment.
+13. Use environment variables for configuration.
+14. Write reusable services.
+15. Prefer interfaces for repositories and services.
+16. Handle errors explicitly and return structured error responses.
+17. Keep business logic out of HTTP handlers.
+18. Make APIs backward-compatible through versioning (`/api/v1`).
+19. Use UTC timestamps internally and ISO 8601 format in API responses.
+20. Design database schemas with future scalability in mind (indexes, foreign keys, soft deletes where appropriate).
+
+---
+
+# Long-Term Vision
+
+The architecture should eventually support:
+
+- 100,000+ users
+- Horizontal scaling
+- Kubernetes deployment
+- Redis caching
+- Message queue (NATS or RabbitMQ)
+- Push notifications
+- End-to-end encrypted location sharing (optional)
+- Self-hosted map tiles
+- Web dashboard
+- iOS application
+- Public API for third-party integrations
+
+The system should remain modular so components (authentication, location service, notification service, realtime service) can later be separated into independent services if growth requires it, while starting as a well-structured Go monolith.

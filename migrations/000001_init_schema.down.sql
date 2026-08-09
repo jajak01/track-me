@@ -1,0 +1,13 @@
+DROP TABLE IF EXISTS blocked_users;
+DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS devices;
+DROP TABLE IF EXISTS locations;
+DROP TABLE IF EXISTS location_permissions;
+DROP TABLE IF EXISTS friendships;
+DROP TABLE IF EXISTS friend_requests;
+DROP TABLE IF EXISTS audit_logs;
+DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS refresh_tokens;
+DROP TABLE IF EXISTS users;
+
+DROP EXTENSION IF EXISTS "uuid-ossp";
