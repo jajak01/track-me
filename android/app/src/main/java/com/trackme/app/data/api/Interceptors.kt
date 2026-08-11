@@ -3,11 +3,10 @@ package com.trackme.app.data.api
 import com.trackme.app.data.local.TokenManager
 import com.trackme.app.data.model.RefreshRequest
 import com.trackme.app.data.model.LoginResponse
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody // <-- Tambahkan import ini
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,7 +16,8 @@ class AuthInterceptor @Inject constructor(
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        val token = runBlocking { tokenManager.getAccessToken() }
+        // Non-blocking: uses in-memory cached token
+        val token = tokenManager.getAccessTokenSync()
         val request = if (token != null) {
             chain.request().newBuilder()
                 .addHeader("Authorization", "Bearer $token")
@@ -44,11 +44,12 @@ class TokenAuthenticator @Inject constructor(
     override fun authenticate(route: Route?, response: Response): Request? {
         if (response.code != 401) return null
 
-        val refreshToken = runBlocking { tokenManager.getRefreshToken() } ?: return null
+        val refreshToken = tokenManager.getRefreshTokenSync() ?: return null
         if (refreshToken.isBlank()) return null
 
+        val baseUrl = "${response.request.url.scheme}://${response.request.url.host}:${response.request.url.port}"
         val refreshRequest = Request.Builder()
-            .url("${response.request.url.scheme}://${response.request.url.host}:${response.request.url.port}/api/v1/auth/refresh")
+            .url("$baseUrl/api/v1/auth/refresh")
             .post(
                 json.encodeToString(RefreshRequest.serializer(), RefreshRequest(refreshToken))
                     .toRequestBody("application/json".toMediaType())
@@ -59,18 +60,19 @@ class TokenAuthenticator @Inject constructor(
 
         return if (refreshResponse.isSuccessful) {
             val body = refreshResponse.body?.string()
-            val loginResp = body?.let { json.decodeFromString<com.trackme.app.data.model.ApiResponse<LoginResponse>>(it) }
+            val loginResp = body?.let {
+                json.decodeFromString<com.trackme.app.data.model.ApiResponse<LoginResponse>>(it)
+            }
             loginResp?.data?.let { newTokens ->
-                runBlocking {
-                    tokenManager.saveTokens(newTokens.accessToken, newTokens.refreshToken)
-                }
+                // Sync cache update — persist to disk in background
+                tokenManager.saveTokensSync(newTokens.accessToken, newTokens.refreshToken)
                 response.request.newBuilder()
                     .removeHeader("Authorization")
                     .addHeader("Authorization", "Bearer ${newTokens.accessToken}")
                     .build()
             }
         } else {
-            runBlocking { tokenManager.clear() }
+            tokenManager.clearSync()
             null
         }
     }

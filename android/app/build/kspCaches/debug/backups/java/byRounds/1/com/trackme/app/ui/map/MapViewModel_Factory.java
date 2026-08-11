@@ -1,7 +1,6 @@
 package com.trackme.app.ui.map;
 
 import com.trackme.app.data.api.WebSocketManager;
-import com.trackme.app.data.local.TokenManager;
 import com.trackme.app.data.location.LocationClient;
 import com.trackme.app.data.repository.FriendRepository;
 import com.trackme.app.data.repository.LocationRepository;
@@ -35,36 +34,33 @@ public final class MapViewModel_Factory implements Factory<MapViewModel> {
 
   private final Provider<WebSocketManager> wsManagerProvider;
 
-  private final Provider<TokenManager> tokenManagerProvider;
-
   private final Provider<LocationClient> locationClientProvider;
 
   public MapViewModel_Factory(Provider<FriendRepository> friendRepositoryProvider,
       Provider<LocationRepository> locationRepositoryProvider,
-      Provider<WebSocketManager> wsManagerProvider, Provider<TokenManager> tokenManagerProvider,
+      Provider<WebSocketManager> wsManagerProvider,
       Provider<LocationClient> locationClientProvider) {
     this.friendRepositoryProvider = friendRepositoryProvider;
     this.locationRepositoryProvider = locationRepositoryProvider;
     this.wsManagerProvider = wsManagerProvider;
-    this.tokenManagerProvider = tokenManagerProvider;
     this.locationClientProvider = locationClientProvider;
   }
 
   @Override
   public MapViewModel get() {
-    return newInstance(friendRepositoryProvider.get(), locationRepositoryProvider.get(), wsManagerProvider.get(), tokenManagerProvider.get(), locationClientProvider.get());
+    return newInstance(friendRepositoryProvider.get(), locationRepositoryProvider.get(), wsManagerProvider.get(), locationClientProvider.get());
   }
 
   public static MapViewModel_Factory create(Provider<FriendRepository> friendRepositoryProvider,
       Provider<LocationRepository> locationRepositoryProvider,
-      Provider<WebSocketManager> wsManagerProvider, Provider<TokenManager> tokenManagerProvider,
+      Provider<WebSocketManager> wsManagerProvider,
       Provider<LocationClient> locationClientProvider) {
-    return new MapViewModel_Factory(friendRepositoryProvider, locationRepositoryProvider, wsManagerProvider, tokenManagerProvider, locationClientProvider);
+    return new MapViewModel_Factory(friendRepositoryProvider, locationRepositoryProvider, wsManagerProvider, locationClientProvider);
   }
 
   public static MapViewModel newInstance(FriendRepository friendRepository,
-      LocationRepository locationRepository, WebSocketManager wsManager, TokenManager tokenManager,
+      LocationRepository locationRepository, WebSocketManager wsManager,
       LocationClient locationClient) {
-    return new MapViewModel(friendRepository, locationRepository, wsManager, tokenManager, locationClient);
+    return new MapViewModel(friendRepository, locationRepository, wsManager, locationClient);
   }
 }

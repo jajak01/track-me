@@ -506,7 +506,7 @@ public final class DaggerTrackMeApp_HiltComponents_SingletonC {
           return (T) new FriendsViewModel(singletonCImpl.friendRepositoryProvider.get());
 
           case 2: // com.trackme.app.ui.map.MapViewModel 
-          return (T) new MapViewModel(singletonCImpl.friendRepositoryProvider.get(), singletonCImpl.locationRepositoryProvider.get(), singletonCImpl.webSocketManagerProvider.get(), singletonCImpl.tokenManagerProvider.get(), singletonCImpl.locationClientProvider.get());
+          return (T) new MapViewModel(singletonCImpl.friendRepositoryProvider.get(), singletonCImpl.locationRepositoryProvider.get(), singletonCImpl.webSocketManagerProvider.get(), singletonCImpl.locationClientProvider.get());
 
           case 3: // com.trackme.app.ui.notifications.NotificationsViewModel 
           return (T) new NotificationsViewModel(singletonCImpl.notificationRepositoryProvider.get(), singletonCImpl.locationRepositoryProvider.get());

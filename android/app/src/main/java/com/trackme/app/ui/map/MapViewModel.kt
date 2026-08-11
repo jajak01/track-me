@@ -11,7 +11,6 @@ import com.trackme.app.data.model.UserResponse
 import com.trackme.app.data.repository.FriendRepository
 import com.trackme.app.data.repository.LocationRepository
 import com.trackme.app.data.repository.Result
-import com.trackme.app.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +35,6 @@ class MapViewModel @Inject constructor(
     private val friendRepository: FriendRepository,
     private val locationRepository: LocationRepository,
     private val wsManager: WebSocketManager,
-    private val tokenManager: TokenManager,
     private val locationClient: LocationClient
 ) : ViewModel() {
 
@@ -44,15 +42,23 @@ class MapViewModel @Inject constructor(
     val state: StateFlow<MapState> = _state
 
     private var trackingJob: Job? = null
-    private var wsConnected = false
+    private var wsConnecting = false
 
     init {
-        viewModelScope.launch { connectWs() }
+        loadFriends()
+    }
+
+    /** Call on every MapScreen entry — reconnects WebSocket if needed */
+    fun ensureConnected() {
+        if (!wsConnecting) {
+            viewModelScope.launch { connectWs() }
+        }
         loadFriends()
     }
 
     fun startLocationTracking() {
-        // Cancel any existing tracking job before starting a new one
+        // Skip if already tracking
+        if (trackingJob?.isActive == true) return
         trackingJob?.cancel()
         trackingJob = viewModelScope.launch {
             _state.update { it.copy(isTracking = true) }
@@ -76,6 +82,7 @@ class MapViewModel @Inject constructor(
     }
 
     private suspend fun connectWs() {
+        wsConnecting = true
         wsManager.connect(
             onEvent = { event ->
                 when (event) {
@@ -89,7 +96,9 @@ class MapViewModel @Inject constructor(
                     else -> {}
                 }
             },
-            onDisconnect = { /* auto-reconnect could be added */ }
+            onDisconnect = {
+                wsConnecting = false
+            }
         )
     }
 
