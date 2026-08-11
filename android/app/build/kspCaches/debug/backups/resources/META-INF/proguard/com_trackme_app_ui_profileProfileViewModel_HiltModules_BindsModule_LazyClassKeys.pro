@@ -1,0 +1,9 @@
+-keep,allowobfuscation,allowshrinking class com.trackme.app.ui.auth.AuthViewModel
+-keep,allowobfuscation,allowshrinking class com.trackme.app.ui.auth.AuthViewModel
+-keep,allowobfuscation,allowshrinking class com.trackme.app.ui.friends.FriendsViewModel
+-keep,allowobfuscation,allowshrinking class com.trackme.app.ui.friends.FriendsViewModel
+-keep,allowobfuscation,allowshrinking class com.trackme.app.ui.map.MapViewModel
+-keep,allowobfuscation,allowshrinking class com.trackme.app.ui.map.MapViewModel
+-keep,allowobfuscation,allowshrinking class com.trackme.app.ui.notifications.NotificationsViewModel
+-keep,allowobfuscation,allowshrinking class com.trackme.app.ui.notifications.NotificationsViewModel
+-keep,allowobfuscation,allowshrinking class com.trackme.app.ui.profile.ProfileViewModel

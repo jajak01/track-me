@@ -7,7 +7,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.logging.HttpLoggingInterceptor
+import okhttp3.RequestBody.Companion.toRequestBody // <-- Tambahkan import ini
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,6 +35,11 @@ class TokenAuthenticator @Inject constructor(
 ) : Authenticator {
 
     private val json = Json { ignoreUnknownKeys = true }
+    private val refreshClient = OkHttpClient.Builder()
+        .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+        .writeTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+        .build()
 
     override fun authenticate(route: Route?, response: Response): Request? {
         if (response.code != 401) return null
@@ -50,9 +55,7 @@ class TokenAuthenticator @Inject constructor(
             )
             .build()
 
-        val refreshResponse = response.request.url.toString().let {
-            OkHttpClient().newCall(refreshRequest).execute()
-        }
+        val refreshResponse = refreshClient.newCall(refreshRequest).execute()
 
         return if (refreshResponse.isSuccessful) {
             val body = refreshResponse.body?.string()

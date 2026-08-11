@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.trackme.app.data.api.WebSocketManager
 import com.trackme.app.data.api.WsEvent
+import com.trackme.app.data.location.LocationClient
 import com.trackme.app.data.model.LocationResponse
 import com.trackme.app.data.model.LocationUpdateRequest
 import com.trackme.app.data.model.UserResponse
@@ -12,6 +13,7 @@ import com.trackme.app.data.repository.LocationRepository
 import com.trackme.app.data.repository.Result
 import com.trackme.app.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -25,6 +27,7 @@ data class MapState(
     val selectedFriend: UserResponse? = null,
     val selectedFriendLocation: LocationResponse? = null,
     val isSharing: Boolean = false,
+    val isTracking: Boolean = false,
     val error: String? = null
 )
 
@@ -33,18 +36,46 @@ class MapViewModel @Inject constructor(
     private val friendRepository: FriendRepository,
     private val locationRepository: LocationRepository,
     private val wsManager: WebSocketManager,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val locationClient: LocationClient
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MapState())
     val state: StateFlow<MapState> = _state
 
+    private var trackingJob: Job? = null
+    private var wsConnected = false
+
     init {
-        connectWs()
+        viewModelScope.launch { connectWs() }
         loadFriends()
     }
 
-    private fun connectWs() {
+    fun startLocationTracking() {
+        // Cancel any existing tracking job before starting a new one
+        trackingJob?.cancel()
+        trackingJob = viewModelScope.launch {
+            _state.update { it.copy(isTracking = true) }
+            try {
+                locationClient.getLocationUpdates(intervalMs = 10_000L).collect { locationData ->
+                    updateMyLocation(
+                        lat = locationData.latitude,
+                        lng = locationData.longitude,
+                        accuracy = locationData.accuracy.toDouble(),
+                        altitude = locationData.altitude,
+                        bearing = locationData.bearing.toDouble(),
+                        speed = locationData.speed.toDouble(),
+                        provider = locationData.provider
+                    )
+                }
+            } catch (_: Exception) {
+                // Flow closed (e.g., permission not granted yet)
+            }
+            _state.update { it.copy(isTracking = false) }
+        }
+    }
+
+    private suspend fun connectWs() {
         wsManager.connect(
             onEvent = { event ->
                 when (event) {
@@ -71,9 +102,29 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    fun updateMyLocation(lat: Double, lng: Double, battery: Int = 0, activity: String = "unknown") {
+    fun updateMyLocation(
+        lat: Double,
+        lng: Double,
+        accuracy: Double = 0.0,
+        altitude: Double = 0.0,
+        bearing: Double = 0.0,
+        speed: Double = 0.0,
+        battery: Int = 0,
+        activity: String = "unknown",
+        provider: String = "gps"
+    ) {
         viewModelScope.launch {
-            val req = LocationUpdateRequest(latitude = lat, longitude = lng, battery = battery, activity = activity)
+            val req = LocationUpdateRequest(
+                latitude = lat,
+                longitude = lng,
+                accuracy = accuracy,
+                altitude = altitude,
+                bearing = bearing,
+                speed = speed,
+                battery = battery,
+                activity = activity,
+                gpsProvider = provider
+            )
             when (val result = locationRepository.updateLocation(req)) {
                 is Result.Success -> _state.update { it.copy(myLocation = result.data) }
                 is Result.Error -> {}

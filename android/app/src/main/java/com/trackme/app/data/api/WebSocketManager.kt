@@ -3,7 +3,8 @@ package com.trackme.app.data.api
 import com.trackme.app.BuildConfig
 import com.trackme.app.data.local.TokenManager
 import com.trackme.app.data.model.LocationResponse
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import okhttp3.*
@@ -24,14 +25,18 @@ sealed class WsEvent {
 class WebSocketManager @Inject constructor(
     private val tokenManager: TokenManager
 ) {
+    @Volatile
     private var ws: WebSocket? = null
     private val json = Json { ignoreUnknownKeys = true }
     private val client = OkHttpClient.Builder()
         .pingInterval(54, TimeUnit.SECONDS)
         .build()
 
-    fun connect(onEvent: (WsEvent) -> Unit, onDisconnect: (String) -> Unit) {
-        val token = runBlocking { tokenManager.getAccessToken() } ?: run {
+    suspend fun connect(onEvent: (WsEvent) -> Unit, onDisconnect: (String) -> Unit) {
+        // Thread-safe: prevent double connection
+        if (ws != null) return
+
+        val token = tokenManager.getAccessToken() ?: run {
             onDisconnect("No token")
             return
         }
@@ -39,29 +44,36 @@ class WebSocketManager @Inject constructor(
         val url = "${BuildConfig.WS_URL}?token=$token"
         val request = Request.Builder().url(url).build()
 
-        ws = client.newWebSocket(request, object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: Response) {}
+        withContext(Dispatchers.IO) {
+            // Double-check inside the IO context to prevent race condition
+            if (ws != null) return@withContext
 
-            override fun onMessage(webSocket: WebSocket, text: String) {
-                val event = parseEvent(text)
-                when (event) {
-                    is WsEvent.Heartbeat -> { /* handled by OkHttp ping/pong */ }
-                    else -> onEvent(event)
+            ws = client.newWebSocket(request, object : WebSocketListener() {
+                override fun onOpen(webSocket: WebSocket, response: Response) {}
+
+                override fun onMessage(webSocket: WebSocket, text: String) {
+                    val event = parseEvent(text)
+                    when (event) {
+                        is WsEvent.Heartbeat -> { /* handled by OkHttp ping/pong */ }
+                        else -> onEvent(event)
+                    }
                 }
-            }
 
-            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-                webSocket.close(1000, null)
-            }
+                override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                    webSocket.close(1000, null)
+                }
 
-            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                onDisconnect(reason)
-            }
+                override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+                    ws = null
+                    onDisconnect(reason)
+                }
 
-            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                onDisconnect(t.message ?: "WebSocket error")
-            }
-        })
+                override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+                    ws = null
+                    onDisconnect(t.message ?: "WebSocket error")
+                }
+            })
+        }
     }
 
     fun disconnect() {

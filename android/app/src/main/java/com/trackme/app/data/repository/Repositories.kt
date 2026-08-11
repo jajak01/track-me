@@ -17,36 +17,52 @@ class AuthRepository @Inject constructor(
     private val tokenManager: TokenManager
 ) {
     suspend fun register(email: String, password: String, displayName: String): Result<UserResponse> {
-        val response = api.register(RegisterRequest(email, password, displayName))
-        return if (response.isSuccessful && response.body()?.success == true) {
-            Result.Success(response.body()!!.data!!)
-        } else {
-            Result.Error(response.body()?.message ?: "Registration failed")
+        return try {
+            val response = api.register(RegisterRequest(email, password, displayName))
+            val body = response.body()
+            if (response.isSuccessful && body?.success == true && body.data != null) {
+                Result.Success(body.data!!)
+            } else {
+                Result.Error(body?.message ?: "Registration failed")
+            }
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}")
         }
     }
 
     suspend fun login(email: String, password: String): Result<LoginResponse> {
-        val response = api.login(LoginRequest(email, password))
-        return if (response.isSuccessful && response.body()?.success == true) {
-            val data = response.body()!!.data!!
-            tokenManager.saveTokens(data.accessToken, data.refreshToken)
-            tokenManager.saveUser(data.user.id, data.user.email, data.user.displayName)
-            Result.Success(data)
-        } else {
-            Result.Error(response.body()?.message ?: "Login failed")
+        return try {
+            val response = api.login(LoginRequest(email, password))
+            val body = response.body()
+            if (response.isSuccessful && body?.success == true && body.data != null) {
+                val data = body.data!!
+                tokenManager.saveTokens(data.accessToken, data.refreshToken)
+                tokenManager.saveUser(data.user.id, data.user.email, data.user.displayName)
+                Result.Success(data)
+            } else {
+                Result.Error(body?.message ?: "Login failed")
+            }
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}")
         }
     }
 
     suspend fun refreshToken(): Result<LoginResponse> {
         val refresh = tokenManager.getRefreshToken() ?: return Result.Error("No refresh token")
-        val response = api.refreshToken(RefreshRequest(refresh))
-        return if (response.isSuccessful && response.body()?.success == true) {
-            val data = response.body()!!.data!!
-            tokenManager.saveTokens(data.accessToken, data.refreshToken)
-            Result.Success(data)
-        } else {
+        return try {
+            val response = api.refreshToken(RefreshRequest(refresh))
+            val body = response.body()
+            if (response.isSuccessful && body?.success == true && body.data != null) {
+                val data = body.data!!
+                tokenManager.saveTokens(data.accessToken, data.refreshToken)
+                Result.Success(data)
+            } else {
+                tokenManager.clear()
+                Result.Error("Session expired")
+            }
+        } catch (e: Exception) {
             tokenManager.clear()
-            Result.Error("Session expired")
+            Result.Error("Network error: ${e.message}")
         }
     }
 
@@ -81,15 +97,25 @@ class UserRepository @Inject constructor(
     private val api: com.trackme.app.data.api.UserApi
 ) {
     suspend fun getProfile(): Result<UserResponse> {
-        val r = api.getProfile()
-        return if (r.isSuccessful && r.body()?.success == true) Result.Success(r.body()!!.data!!)
-        else Result.Error(r.body()?.message ?: "Failed")
+        return try {
+            val r = api.getProfile()
+            val body = r.body()
+            if (r.isSuccessful && body?.success == true && body.data != null) Result.Success(body.data!!)
+            else Result.Error(body?.message ?: "Failed")
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}")
+        }
     }
 
     suspend fun updateProfile(request: UpdateProfileRequest): Result<UserResponse> {
-        val r = api.updateProfile(request)
-        return if (r.isSuccessful && r.body()?.success == true) Result.Success(r.body()!!.data!!)
-        else Result.Error(r.body()?.message ?: "Failed")
+        return try {
+            val r = api.updateProfile(request)
+            val body = r.body()
+            if (r.isSuccessful && body?.success == true && body.data != null) Result.Success(body.data!!)
+            else Result.Error(body?.message ?: "Failed")
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}")
+        }
     }
 }
 
@@ -98,9 +124,14 @@ class FriendRepository @Inject constructor(
     private val api: com.trackme.app.data.api.FriendApi
 ) {
     suspend fun sendRequest(email: String): Result<FriendRequestResponse> {
-        val r = api.sendRequest(SendFriendRequest(email))
-        return if (r.isSuccessful && r.body()?.success == true) Result.Success(r.body()!!.data!!)
-        else Result.Error(r.body()?.message ?: "Failed")
+        return try {
+            val r = api.sendRequest(SendFriendRequest(email))
+            val body = r.body()
+            if (r.isSuccessful && body?.success == true && body.data != null) Result.Success(body.data!!)
+            else Result.Error(body?.message ?: "Failed")
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}")
+        }
     }
 
     suspend fun respondRequest(requestId: String, accept: Boolean): Result<Unit> {
@@ -110,15 +141,25 @@ class FriendRepository @Inject constructor(
     }
 
     suspend fun getPendingRequests(): Result<List<FriendRequestResponse>> {
-        val r = api.getPendingRequests()
-        return if (r.isSuccessful && r.body()?.success == true) Result.Success(r.body()!!.data ?: emptyList())
-        else Result.Error(r.body()?.message ?: "Failed")
+        return try {
+            val r = api.getPendingRequests()
+            val body = r.body()
+            if (r.isSuccessful && body?.success == true) Result.Success(body.data ?: emptyList())
+            else Result.Error(body?.message ?: "Failed")
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}")
+        }
     }
 
     suspend fun getFriends(): Result<List<UserResponse>> {
-        val r = api.getFriends()
-        return if (r.isSuccessful && r.body()?.success == true) Result.Success(r.body()!!.data ?: emptyList())
-        else Result.Error(r.body()?.message ?: "Failed")
+        return try {
+            val r = api.getFriends()
+            val body = r.body()
+            if (r.isSuccessful && body?.success == true) Result.Success(body.data ?: emptyList())
+            else Result.Error(body?.message ?: "Failed")
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}")
+        }
     }
 
     suspend fun removeFriend(id: String): Result<Unit> {
@@ -140,9 +181,14 @@ class FriendRepository @Inject constructor(
     }
 
     suspend fun getBlockedUsers(): Result<List<UserResponse>> {
-        val r = api.getBlockedUsers()
-        return if (r.isSuccessful && r.body()?.success == true) Result.Success(r.body()!!.data ?: emptyList())
-        else Result.Error(r.body()?.message ?: "Failed")
+        return try {
+            val r = api.getBlockedUsers()
+            val body = r.body()
+            if (r.isSuccessful && body?.success == true) Result.Success(body.data ?: emptyList())
+            else Result.Error(body?.message ?: "Failed")
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}")
+        }
     }
 }
 
@@ -169,21 +215,36 @@ class LocationRepository @Inject constructor(
     }
 
     suspend fun updateLocation(request: LocationUpdateRequest): Result<LocationResponse> {
-        val r = api.updateLocation(request)
-        return if (r.isSuccessful && r.body()?.success == true) Result.Success(r.body()!!.data!!)
-        else Result.Error(r.body()?.message ?: "Failed")
+        return try {
+            val r = api.updateLocation(request)
+            val body = r.body()
+            if (r.isSuccessful && body?.success == true && body.data != null) Result.Success(body.data!!)
+            else Result.Error(body?.message ?: "Failed")
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}")
+        }
     }
 
     suspend fun getCurrentLocation(userId: String): Result<LocationResponse> {
-        val r = api.getCurrentLocation(userId)
-        return if (r.isSuccessful && r.body()?.success == true) Result.Success(r.body()!!.data!!)
-        else Result.Error(r.body()?.message ?: "Failed")
+        return try {
+            val r = api.getCurrentLocation(userId)
+            val body = r.body()
+            if (r.isSuccessful && body?.success == true && body.data != null) Result.Success(body.data!!)
+            else Result.Error(body?.message ?: "Failed")
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}")
+        }
     }
 
     suspend fun getLocationHistory(userId: String, start: String, end: String): Result<List<LocationResponse>> {
-        val r = api.getLocationHistory(userId, start, end)
-        return if (r.isSuccessful && r.body()?.success == true) Result.Success(r.body()!!.data ?: emptyList())
-        else Result.Error(r.body()?.message ?: "Failed")
+        return try {
+            val r = api.getLocationHistory(userId, start, end)
+            val body = r.body()
+            if (r.isSuccessful && body?.success == true) Result.Success(body.data ?: emptyList())
+            else Result.Error(body?.message ?: "Failed")
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}")
+        }
     }
 }
 
@@ -192,9 +253,14 @@ class NotificationRepository @Inject constructor(
     private val api: com.trackme.app.data.api.NotificationApi
 ) {
     suspend fun getNotifications(): Result<List<NotificationResponse>> {
-        val r = api.getNotifications()
-        return if (r.isSuccessful && r.body()?.success == true) Result.Success(r.body()!!.data)
-        else Result.Error(r.body()?.message ?: "Failed")
+        return try {
+            val r = api.getNotifications()
+            val body = r.body()
+            if (r.isSuccessful && body?.success == true) Result.Success(body.data ?: emptyList())
+            else Result.Error(body?.message ?: "Failed")
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}")
+        }
     }
 
     suspend fun markAsRead(id: String): Result<Unit> {

@@ -1,0 +1,70 @@
+package com.trackme.app.ui.map;
+
+import com.trackme.app.data.api.WebSocketManager;
+import com.trackme.app.data.local.TokenManager;
+import com.trackme.app.data.location.LocationClient;
+import com.trackme.app.data.repository.FriendRepository;
+import com.trackme.app.data.repository.LocationRepository;
+import dagger.internal.DaggerGenerated;
+import dagger.internal.Factory;
+import dagger.internal.QualifierMetadata;
+import dagger.internal.ScopeMetadata;
+import javax.annotation.processing.Generated;
+import javax.inject.Provider;
+
+@ScopeMetadata
+@QualifierMetadata
+@DaggerGenerated
+@Generated(
+    value = "dagger.internal.codegen.ComponentProcessor",
+    comments = "https://dagger.dev"
+)
+@SuppressWarnings({
+    "unchecked",
+    "rawtypes",
+    "KotlinInternal",
+    "KotlinInternalInJava",
+    "cast",
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
+})
+public final class MapViewModel_Factory implements Factory<MapViewModel> {
+  private final Provider<FriendRepository> friendRepositoryProvider;
+
+  private final Provider<LocationRepository> locationRepositoryProvider;
+
+  private final Provider<WebSocketManager> wsManagerProvider;
+
+  private final Provider<TokenManager> tokenManagerProvider;
+
+  private final Provider<LocationClient> locationClientProvider;
+
+  public MapViewModel_Factory(Provider<FriendRepository> friendRepositoryProvider,
+      Provider<LocationRepository> locationRepositoryProvider,
+      Provider<WebSocketManager> wsManagerProvider, Provider<TokenManager> tokenManagerProvider,
+      Provider<LocationClient> locationClientProvider) {
+    this.friendRepositoryProvider = friendRepositoryProvider;
+    this.locationRepositoryProvider = locationRepositoryProvider;
+    this.wsManagerProvider = wsManagerProvider;
+    this.tokenManagerProvider = tokenManagerProvider;
+    this.locationClientProvider = locationClientProvider;
+  }
+
+  @Override
+  public MapViewModel get() {
+    return newInstance(friendRepositoryProvider.get(), locationRepositoryProvider.get(), wsManagerProvider.get(), tokenManagerProvider.get(), locationClientProvider.get());
+  }
+
+  public static MapViewModel_Factory create(Provider<FriendRepository> friendRepositoryProvider,
+      Provider<LocationRepository> locationRepositoryProvider,
+      Provider<WebSocketManager> wsManagerProvider, Provider<TokenManager> tokenManagerProvider,
+      Provider<LocationClient> locationClientProvider) {
+    return new MapViewModel_Factory(friendRepositoryProvider, locationRepositoryProvider, wsManagerProvider, tokenManagerProvider, locationClientProvider);
+  }
+
+  public static MapViewModel newInstance(FriendRepository friendRepository,
+      LocationRepository locationRepository, WebSocketManager wsManager, TokenManager tokenManager,
+      LocationClient locationClient) {
+    return new MapViewModel(friendRepository, locationRepository, wsManager, tokenManager, locationClient);
+  }
+}

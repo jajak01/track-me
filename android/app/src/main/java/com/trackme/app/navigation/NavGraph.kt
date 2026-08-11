@@ -1,5 +1,6 @@
 package com.trackme.app.navigation
 
+import android.content.Context
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -7,6 +8,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -21,6 +25,7 @@ import com.trackme.app.ui.friends.FriendsScreen
 import com.trackme.app.ui.map.MapScreen
 import com.trackme.app.ui.notifications.NotificationsScreen
 import com.trackme.app.ui.profile.ProfileScreen
+import kotlinx.coroutines.flow.first
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
     data object Map : Screen("map", "Map", Icons.Default.Map)
@@ -36,13 +41,32 @@ sealed class AuthScreen(val route: String) {
 
 val bottomNavItems = listOf(Screen.Map, Screen.Friends, Screen.Notifications, Screen.Profile)
 
+private val Context.dataStore by preferencesDataStore("trackme_prefs")
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrackMeNavHost() {
     val navController = rememberNavController()
+    val context = LocalContext.current
     var isLoggedIn by remember { mutableStateOf(false) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+
+    // Check for existing token on startup — auto-login if valid session exists
+    LaunchedEffect(Unit) {
+        try {
+            val accessKey = stringPreferencesKey("access_token")
+            val token = context.dataStore.data.first()[accessKey]
+            if (!token.isNullOrBlank()) {
+                isLoggedIn = true
+                navController.navigate(Screen.Map.route) {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        } catch (_: Exception) {
+            // DataStore unavailable — stay on login screen
+        }
+    }
 
     val showBottomBar = isLoggedIn && bottomNavItems.any { screen ->
         currentDestination?.hierarchy?.any { it.route == screen.route } == true
@@ -72,7 +96,7 @@ fun TrackMeNavHost() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = if (isLoggedIn) Screen.Map.route else AuthScreen.Login.route,
+            startDestination = AuthScreen.Login.route,
             modifier = Modifier.padding(innerPadding)
         ) {
             // Auth
