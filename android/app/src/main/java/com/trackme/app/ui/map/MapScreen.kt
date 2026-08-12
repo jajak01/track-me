@@ -2,6 +2,8 @@ package com.trackme.app.ui.map
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.PowerManager
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -57,18 +59,38 @@ fun MapScreen(
         }
     }
 
+    // Battery optimization bypass
+    val batteryOptimizationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { /* User may have granted or denied — we just continue */ }
+
+    // Check and request battery optimization bypass when tracking starts
+    LaunchedEffect(state.isTracking) {
+        if (state.isTracking) {
+            val powerManager = context.getSystemService(android.content.Context.POWER_SERVICE) as PowerManager
+            if (!powerManager.isIgnoringBatteryOptimizations(context.packageName)) {
+                try {
+                    val intent = android.content.Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                        data = android.net.Uri.parse("package:${context.packageName}")
+                    }
+                    batteryOptimizationLauncher.launch(intent)
+                } catch (_: Exception) {
+                    // Some devices don't support this intent
+                }
+            }
+        }
+    }
+
     // Track markers — reset when map changes
     var myMarker by remember { mutableStateOf<Marker?>(null) }
     val friendMarkers = remember { mutableMapOf<String, Marker>() }
 
-    // Unique key to force AndroidView recreation when MapView is destroyed/recreated
-    var mapViewKey by remember { mutableLongStateOf(0L) }
-
-    // Initialize MapLibre before creating MapView
+    // Initialize MapLibre
     MapLibre.getInstance(context)
 
-    // Create MapView — uses key to force recreation on re-entry after tab switch
-    val mapView = remember(mapViewKey) {
+    // Create MapView. Each composition entry creates a fresh MapView
+    // (Compose Navigation destroys composables on tab switch, so this runs anew each time).
+    val mapView = remember {
         MapView(context).also { mv ->
             mv.onCreate(null)
             mv.getMapAsync { map ->
@@ -87,7 +109,7 @@ fun MapScreen(
         }
     }
 
-    // Forward lifecycle events
+    // Forward lifecycle events to MapView
     DisposableEffect(lifecycleOwner) {
         val currentState = lifecycleOwner.lifecycle.currentState
         if (currentState.isAtLeast(Lifecycle.State.STARTED)) {
@@ -103,7 +125,7 @@ fun MapScreen(
                 Lifecycle.Event.ON_RESUME -> mapView.onResume()
                 Lifecycle.Event.ON_PAUSE -> mapView.onPause()
                 Lifecycle.Event.ON_STOP -> mapView.onStop()
-                Lifecycle.Event.ON_DESTROY -> {}
+                Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
                 else -> {}
             }
         }
@@ -113,19 +135,13 @@ fun MapScreen(
         }
     }
 
-    // Destroy MapView when composable leaves composition — also reset all map state
+    // Clean up markers and map reference when composable leaves
     DisposableEffect(Unit) {
         onDispose {
-            // Clear markers BEFORE destroying map to avoid native crashes
             myMarker = null
             friendMarkers.values.forEach { it.remove() }
             friendMarkers.clear()
             mapLibreMap = null
-            mapView.onPause()
-            mapView.onStop()
-            mapView.onDestroy()
-            // Bump key so next entry creates a fresh MapView
-            mapViewKey++
         }
     }
 
@@ -150,11 +166,9 @@ fun MapScreen(
     // Update friend location markers when friendLocations change
     LaunchedEffect(state.friendLocations, mapLibreMap) {
         val map = mapLibreMap ?: return@LaunchedEffect
-        // Remove old markers that are no longer in the list
         val currentIds = state.friendLocations.keys
         val toRemove = friendMarkers.keys.filter { it !in currentIds }
         toRemove.forEach { friendMarkers.remove(it)?.remove() }
-        // Add/update markers
         state.friendLocations.forEach { (userId, loc) ->
             val friend = state.friends.find { it.id == userId }
             friendMarkers[userId]?.remove()
@@ -205,13 +219,10 @@ fun MapScreen(
         }
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            // Map View — keyed to force recreation on tab re-entry
-            key(mapViewKey) {
-                AndroidView(
-                    factory = { mapView },
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+            AndroidView(
+                factory = { mapView },
+                modifier = Modifier.fillMaxSize()
+            )
 
             // Tracking status indicator
             Surface(

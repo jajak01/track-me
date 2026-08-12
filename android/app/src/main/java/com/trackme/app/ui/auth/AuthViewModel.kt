@@ -2,6 +2,7 @@ package com.trackme.app.ui.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.trackme.app.data.local.TokenManager
 import com.trackme.app.data.repository.AuthRepository
 import com.trackme.app.data.repository.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,11 +20,25 @@ data class AuthState(
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AuthState())
     val state: StateFlow<AuthState> = _state
+
+    init {
+        checkExistingToken()
+    }
+
+    private fun checkExistingToken() {
+        viewModelScope.launch {
+            val token = tokenManager.getAccessToken()
+            if (token != null) {
+                _state.update { it.copy(isLoggedIn = true) }
+            }
+        }
+    }
 
     fun login(email: String, password: String) {
         viewModelScope.launch {

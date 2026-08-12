@@ -7,11 +7,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.trackme.app.ui.auth.AuthViewModel
 import com.trackme.app.ui.auth.LoginScreen
 import com.trackme.app.ui.auth.RegisterScreen
 import com.trackme.app.ui.friends.FriendsScreen
@@ -37,11 +39,21 @@ val bottomNavItems = listOf(Screen.Map, Screen.Friends, Screen.Notifications, Sc
 @Composable
 fun TrackMeNavHost() {
     val navController = rememberNavController()
-    var isLoggedIn by remember { mutableStateOf(false) }
+    val authViewModel: AuthViewModel = hiltViewModel()
+    val authState by authViewModel.state.collectAsState()
+    val isLoggedIn = authState.isLoggedIn
+
+    // Auto-navigate to Map if already logged in (stored token found)
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn && navController.currentDestination?.route in listOf(AuthScreen.Login.route, AuthScreen.Register.route, null)) {
+            navController.navigate(Screen.Map.route) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-
-    // Auto-login: check if a stored token exists (skip duplicate DataStore — rely on AuthViewModel)
 
     val showBottomBar = isLoggedIn && bottomNavItems.any { screen ->
         currentDestination?.hierarchy?.any { it.route == screen.route } == true
@@ -80,7 +92,6 @@ fun TrackMeNavHost() {
                 LoginScreen(
                     onNavigateRegister = { navController.navigate(AuthScreen.Register.route) },
                     onLoginSuccess = {
-                        isLoggedIn = true
                         navController.navigate(Screen.Map.route) {
                             popUpTo(0) { inclusive = true }
                         }
@@ -91,7 +102,6 @@ fun TrackMeNavHost() {
                 RegisterScreen(
                     onNavigateLogin = { navController.popBackStack() },
                     onRegisterSuccess = {
-                        isLoggedIn = true
                         navController.navigate(Screen.Map.route) {
                             popUpTo(0) { inclusive = true }
                         }
@@ -112,7 +122,7 @@ fun TrackMeNavHost() {
             composable(Screen.Profile.route) {
                 ProfileScreen(
                     onLogout = {
-                        isLoggedIn = false
+                        authViewModel.resetLoginState()
                         navController.navigate(AuthScreen.Login.route) {
                             popUpTo(0) { inclusive = true }
                         }

@@ -29,6 +29,8 @@ import com.trackme.app.di.AppModule_ProvideNotificationApiFactory;
 import com.trackme.app.di.AppModule_ProvideOkHttpClientFactory;
 import com.trackme.app.di.AppModule_ProvideRetrofitFactory;
 import com.trackme.app.di.AppModule_ProvideUserApiFactory;
+import com.trackme.app.service.LocationTrackerService;
+import com.trackme.app.service.LocationTrackerService_MembersInjector;
 import com.trackme.app.ui.auth.AuthViewModel;
 import com.trackme.app.ui.auth.AuthViewModel_HiltModules;
 import com.trackme.app.ui.auth.AuthViewModel_HiltModules_BindsModule_Binds_LazyMapKey;
@@ -63,6 +65,7 @@ import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories_Internal
 import dagger.hilt.android.internal.managers.ActivityRetainedComponentManager_LifecycleModule_ProvideActivityRetainedLifecycleFactory;
 import dagger.hilt.android.internal.managers.SavedStateHandleHolder;
 import dagger.hilt.android.internal.modules.ApplicationContextModule;
+import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideApplicationFactory;
 import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
@@ -500,13 +503,13 @@ public final class DaggerTrackMeApp_HiltComponents_SingletonC {
       public T get() {
         switch (id) {
           case 0: // com.trackme.app.ui.auth.AuthViewModel 
-          return (T) new AuthViewModel(singletonCImpl.authRepositoryProvider.get());
+          return (T) new AuthViewModel(singletonCImpl.authRepositoryProvider.get(), singletonCImpl.tokenManagerProvider.get());
 
           case 1: // com.trackme.app.ui.friends.FriendsViewModel 
           return (T) new FriendsViewModel(singletonCImpl.friendRepositoryProvider.get());
 
           case 2: // com.trackme.app.ui.map.MapViewModel 
-          return (T) new MapViewModel(singletonCImpl.friendRepositoryProvider.get(), singletonCImpl.locationRepositoryProvider.get(), singletonCImpl.webSocketManagerProvider.get(), singletonCImpl.locationClientProvider.get());
+          return (T) new MapViewModel(ApplicationContextModule_ProvideApplicationFactory.provideApplication(singletonCImpl.applicationContextModule), singletonCImpl.friendRepositoryProvider.get(), singletonCImpl.locationRepositoryProvider.get(), singletonCImpl.webSocketManagerProvider.get(), singletonCImpl.locationClientProvider.get());
 
           case 3: // com.trackme.app.ui.notifications.NotificationsViewModel 
           return (T) new NotificationsViewModel(singletonCImpl.notificationRepositoryProvider.get(), singletonCImpl.locationRepositoryProvider.get());
@@ -586,6 +589,19 @@ public final class DaggerTrackMeApp_HiltComponents_SingletonC {
       this.singletonCImpl = singletonCImpl;
 
 
+    }
+
+    @Override
+    public void injectLocationTrackerService(LocationTrackerService arg0) {
+      injectLocationTrackerService2(arg0);
+    }
+
+    private LocationTrackerService injectLocationTrackerService2(LocationTrackerService instance) {
+      LocationTrackerService_MembersInjector.injectLocationClient(instance, singletonCImpl.locationClientProvider.get());
+      LocationTrackerService_MembersInjector.injectLocationRepository(instance, singletonCImpl.locationRepositoryProvider.get());
+      LocationTrackerService_MembersInjector.injectWsManager(instance, singletonCImpl.webSocketManagerProvider.get());
+      LocationTrackerService_MembersInjector.injectTokenManager(instance, singletonCImpl.tokenManagerProvider.get());
+      return instance;
     }
   }
 

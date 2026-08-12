@@ -1,5 +1,6 @@
 package com.trackme.app.ui.map
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.trackme.app.data.api.WebSocketManager
@@ -11,6 +12,7 @@ import com.trackme.app.data.model.UserResponse
 import com.trackme.app.data.repository.FriendRepository
 import com.trackme.app.data.repository.LocationRepository
 import com.trackme.app.data.repository.Result
+import com.trackme.app.service.LocationTrackerService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +34,7 @@ data class MapState(
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
+    private val app: Application,
     private val friendRepository: FriendRepository,
     private val locationRepository: LocationRepository,
     private val wsManager: WebSocketManager,
@@ -62,6 +65,8 @@ class MapViewModel @Inject constructor(
         trackingJob?.cancel()
         trackingJob = viewModelScope.launch {
             _state.update { it.copy(isTracking = true) }
+            // Start the foreground service to keep tracking alive in background
+            LocationTrackerService.start(app)
             try {
                 locationClient.getLocationUpdates(intervalMs = 10_000L).collect { locationData ->
                     updateMyLocation(

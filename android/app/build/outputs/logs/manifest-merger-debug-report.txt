@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:2:1-33:12
-INJECTED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:2:1-33:12
-INJECTED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:2:1-33:12
-INJECTED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:2:1-33:12
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:2:1-51:12
+INJECTED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:2:1-51:12
+INJECTED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:2:1-51:12
+INJECTED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:2:1-51:12
 MERGED from [com.google.android.gms:play-services-location:21.3.0] /home/desen/.gradle/caches/8.11.1/transforms/d63728d144674a1cf2d48d8860916f1f/transformed/play-services-location-21.3.0/AndroidManifest.xml:2:1-8:12
 MERGED from [com.google.android.gms:play-services-base:18.5.0] /home/desen/.gradle/caches/8.11.1/transforms/8274f0e369ffd53c2fe2025aa380780d/transformed/play-services-base-18.5.0/AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.gms:play-services-tasks:18.2.0] /home/desen/.gradle/caches/8.11.1/transforms/b83f65dc0bb9d6ab194adcee1c31dc99/transformed/play-services-tasks-18.2.0/AndroidManifest.xml:2:1-5:12
@@ -116,17 +116,37 @@ uses-permission#android.permission.ACCESS_BACKGROUND_LOCATION
 ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:9:5-85
 	android:name
 		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:9:22-82
+uses-permission#android.permission.FOREGROUND_SERVICE
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:10:5-77
+	android:name
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:10:22-74
 uses-permission#android.permission.FOREGROUND_SERVICE_LOCATION
-ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:10:5-86
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:11:5-86
 	android:name
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:10:22-83
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:11:22-83
+uses-permission#android.permission.FOREGROUND_SERVICE_DATA_SYNC
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:12:5-87
+	android:name
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:12:22-84
 uses-permission#android.permission.POST_NOTIFICATIONS
-ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:11:5-77
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:13:5-77
 	android:name
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:11:22-74
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:13:22-74
+uses-permission#android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:14:5-95
+	android:name
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:14:22-92
+uses-permission#android.permission.WAKE_LOCK
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:15:5-68
+	android:name
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:15:22-65
+uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:16:5-81
+	android:name
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:16:22-78
 application
-ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:13:5-32:19
-INJECTED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:13:5-32:19
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:18:5-50:19
+INJECTED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:18:5-50:19
 MERGED from [com.google.android.gms:play-services-location:21.3.0] /home/desen/.gradle/caches/8.11.1/transforms/d63728d144674a1cf2d48d8860916f1f/transformed/play-services-location-21.3.0/AndroidManifest.xml:6:5-20
 MERGED from [com.google.android.gms:play-services-location:21.3.0] /home/desen/.gradle/caches/8.11.1/transforms/d63728d144674a1cf2d48d8860916f1f/transformed/play-services-location-21.3.0/AndroidManifest.xml:6:5-20
 MERGED from [com.google.android.gms:play-services-base:18.5.0] /home/desen/.gradle/caches/8.11.1/transforms/8274f0e369ffd53c2fe2025aa380780d/transformed/play-services-base-18.5.0/AndroidManifest.xml:4:5-6:19
@@ -156,39 +176,59 @@ MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/desen
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.15.0] /home/desen/.gradle/caches/8.11.1/transforms/3db8996dcb51d5c7b827c7fcdf1181a5/transformed/core-1.15.0/AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:18:9-35
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:23:9-35
 	android:label
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:17:9-33
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:22:9-33
 	tools:targetApi
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:21:9-29
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:26:9-29
 	android:icon
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:16:9-58
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:21:9-58
 	android:allowBackup
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:15:9-35
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:20:9-35
 	android:theme
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:19:9-45
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:24:9-45
 	android:usesCleartextTraffic
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:20:9-44
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:25:9-44
 	android:name
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:14:9-35
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:19:9-35
 activity#com.trackme.app.MainActivity
-ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:23:9-31:20
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:28:9-36:20
 	android:exported
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:25:13-36
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:30:13-36
 	android:theme
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:26:13-49
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:31:13-49
 	android:name
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:24:13-41
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:29:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:27:13-30:29
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:32:13-35:29
 action#android.intent.action.MAIN
-ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:28:17-69
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:33:17-69
 	android:name
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:28:25-66
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:33:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:29:17-77
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:34:17-77
 	android:name
-		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:29:27-74
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:34:27-74
+service#com.trackme.app.service.LocationTrackerService
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:38:9-41:65
+	android:exported
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:40:13-37
+	android:foregroundServiceType
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:41:13-62
+	android:name
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:39:13-59
+receiver#com.trackme.app.service.BootReceiver
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:43:9-49:20
+	android:exported
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:45:13-37
+	android:name
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:44:13-49
+intent-filter#action:name:android.intent.action.BOOT_COMPLETED
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:46:13-48:29
+action#android.intent.action.BOOT_COMPLETED
+ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:47:17-79
+	android:name
+		ADDED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml:47:25-76
 uses-sdk
 INJECTED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/desen/Documents/track-me/android/app/src/main/AndroidManifest.xml

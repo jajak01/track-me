@@ -1,6 +1,7 @@
 package com.trackme.app;
 
 import com.trackme.app.di.AppModule;
+import com.trackme.app.service.LocationTrackerService_GeneratedInjector;
 import com.trackme.app.ui.auth.AuthViewModel_HiltModules;
 import com.trackme.app.ui.friends.FriendsViewModel_HiltModules;
 import com.trackme.app.ui.map.MapViewModel_HiltModules;
@@ -148,7 +149,8 @@ public final class TrackMeApp_HiltComponents {
 
   @Subcomponent
   @ServiceScoped
-  public abstract static class ServiceC implements ServiceComponent,
+  public abstract static class ServiceC implements LocationTrackerService_GeneratedInjector,
+      ServiceComponent,
       GeneratedComponent {
     @Subcomponent.Builder
     abstract interface Builder extends ServiceComponentBuilder {

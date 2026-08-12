@@ -20,6 +20,7 @@ import dagger.hilt.processor.internal.definecomponent.codegen._dagger_hilt_compo
 import hilt_aggregated_deps._com_trackme_app_MainActivity_GeneratedInjector;
 import hilt_aggregated_deps._com_trackme_app_TrackMeApp_GeneratedInjector;
 import hilt_aggregated_deps._com_trackme_app_di_AppModule;
+import hilt_aggregated_deps._com_trackme_app_service_LocationTrackerService_GeneratedInjector;
 import hilt_aggregated_deps._com_trackme_app_ui_auth_AuthViewModel_HiltModules_BindsModule;
 import hilt_aggregated_deps._com_trackme_app_ui_auth_AuthViewModel_HiltModules_KeyModule;
 import hilt_aggregated_deps._com_trackme_app_ui_friends_FriendsViewModel_HiltModules_BindsModule;
@@ -73,6 +74,7 @@ import hilt_aggregated_deps._dagger_hilt_android_internal_modules_HiltWrapper_Ac
         _com_trackme_app_MainActivity_GeneratedInjector.class,
         _com_trackme_app_TrackMeApp_GeneratedInjector.class,
         _com_trackme_app_di_AppModule.class,
+        _com_trackme_app_service_LocationTrackerService_GeneratedInjector.class,
         _com_trackme_app_ui_auth_AuthViewModel_HiltModules_BindsModule.class,
         _com_trackme_app_ui_auth_AuthViewModel_HiltModules_KeyModule.class,
         _com_trackme_app_ui_friends_FriendsViewModel_HiltModules_BindsModule.class,
