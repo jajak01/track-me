@@ -1,1 +1,0 @@
--keep,allowobfuscation,allowshrinking class com.trackme.app.ui.auth.AuthViewModel

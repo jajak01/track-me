@@ -1,3 +1,0 @@
--keep,allowobfuscation,allowshrinking class com.trackme.app.ui.auth.AuthViewModel
--keep,allowobfuscation,allowshrinking class com.trackme.app.ui.auth.AuthViewModel
--keep,allowobfuscation,allowshrinking class com.trackme.app.ui.friends.FriendsViewModel
