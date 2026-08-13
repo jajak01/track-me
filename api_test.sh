@@ -50,7 +50,7 @@ check "Mark all read"           "200" POST /notification/read-all "$TOKEN2"
 
 echo ""
 echo "========== LOCATION (protected) =========="
-check "Update location"         "200" POST /location/update "$TOKEN2" '{"latitude":-6.2,"longitude":106.8,"battery":85,"activity":"walking"}'
+check "Update location"         "200" POST /location/update "$TOKEN2" '{"latitude":-6.2,"longitude":106.8,"battery_percentage":85,"activity_type":"walking","is_charging":false,"is_mock":false}'
 check "Get friend location"     "200" GET /location/current/47f5517a-1615-4f6a-941a-dcfa42c9b199 "$TOKEN1"
 check "Get location history"    "200" GET "/location/history/47f5517a-1615-4f6a-941a-dcfa42c9b199?start=2026-08-07T00:00:00Z&end=2026-08-09T00:00:00Z" "$TOKEN1"
 check "Location no auth"        "401" GET /location/current/47f5517a-1615-4f6a-941a-dcfa42c9b199 ""

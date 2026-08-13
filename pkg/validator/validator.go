@@ -8,6 +8,22 @@ var validate *validator.Validate
 
 func Init() {
 	validate = validator.New()
+
+	_ = validate.RegisterValidation("latitude", func(fl validator.FieldLevel) bool {
+		v, ok := fl.Field().Interface().(float64)
+		if !ok {
+			return false
+		}
+		return v >= -90 && v <= 90
+	})
+
+	_ = validate.RegisterValidation("longitude", func(fl validator.FieldLevel) bool {
+		v, ok := fl.Field().Interface().(float64)
+		if !ok {
+			return false
+		}
+		return v >= -180 && v <= 180
+	})
 }
 
 func Struct(s interface{}) error {

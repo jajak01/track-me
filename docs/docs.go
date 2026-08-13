@@ -1480,32 +1480,29 @@ const docTemplate = `{
                 "accuracy": {
                     "type": "number"
                 },
-                "activity": {
+                "activity_type": {
                     "type": "string"
                 },
                 "altitude": {
                     "type": "number"
                 },
-                "battery": {
+                "battery_percentage": {
                     "type": "integer"
                 },
                 "bearing": {
                     "type": "number"
                 },
-                "charging": {
+                "is_charging": {
                     "type": "boolean"
                 },
-                "gps_provider": {
-                    "type": "string"
+                "is_mock": {
+                    "type": "boolean"
                 },
                 "latitude": {
                     "type": "number"
                 },
                 "longitude": {
                     "type": "number"
-                },
-                "mock_location": {
-                    "type": "boolean"
                 },
                 "speed": {
                     "type": "number"
@@ -1528,23 +1525,23 @@ const docTemplate = `{
                 "accuracy": {
                     "type": "number"
                 },
-                "activity": {
+                "activity_type": {
                     "type": "string"
                 },
                 "altitude": {
                     "type": "number"
                 },
-                "battery": {
+                "battery_percentage": {
                     "type": "integer"
                 },
                 "bearing": {
                     "type": "number"
                 },
-                "charging": {
+                "is_charging": {
                     "type": "boolean"
                 },
-                "gps_provider": {
-                    "type": "string"
+                "is_mock": {
+                    "type": "boolean"
                 },
                 "latitude": {
                     "type": "number"
@@ -1552,11 +1549,11 @@ const docTemplate = `{
                 "longitude": {
                     "type": "number"
                 },
-                "mock_location": {
-                    "type": "boolean"
-                },
                 "speed": {
                     "type": "number"
+                },
+                "timestamp": {
+                    "type": "string"
                 }
             }
         },

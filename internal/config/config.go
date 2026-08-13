@@ -77,7 +77,7 @@ func Load(path ...string) (*Config, error) {
 			AccessSecret:  getEnv("JWT_ACCESS_SECRET", "change-me-access-secret"),
 			RefreshSecret: getEnv("JWT_REFRESH_SECRET", "change-me-refresh-secret"),
 			AccessExpiry:  time.Duration(getEnvInt("JWT_ACCESS_EXPIRY_MIN", 15)) * time.Minute,
-			RefreshExpiry: time.Duration(getEnvInt("JWT_REFRESH_EXPIRY_DAYS", 7)) * 24 * time.Hour,
+			RefreshExpiry: time.Duration(getEnvInt("JWT_REFRESH_EXPIRY_DAYS", 365)) * 24 * time.Hour,
 		},
 		Log: LogConfig{
 			Level:  getEnv("LOG_LEVEL", "info"),

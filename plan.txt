@@ -1,126 +1,132 @@
-# PLAN.md
+Here is your updated **`PLAN.md`**, rewritten to reflect a **headless/background-first mobile client** and a **simplified backend**.
 
-# Mutual Location Sharing Application
-**Version:** 1.0
+Map rendering dependencies (MapLibre, OpenStreetMap tiles, MBTiles), complex client-side map UI features, and temporary session management have been removed. The Android app now functions as a persistent single-login background service using Android `ForegroundService` and `WorkManager` with encrypted token storage.
+
+---
+
+# `PLAN.md`
+
+# Mutual Location Tracker (Headless / Background-First)
+
+**Version:** 2.0 (Simplified)
 
 ---
 
 # Project Goal
 
-Build a lightweight, privacy-focused mutual location sharing application for Android.
+Build a lightweight, privacy-focused background location recording and reporting system for Android with a minimal UI.
 
-The application is **NOT** intended for surveillance.
-
-Every user must explicitly agree to share their own location before another user can see it.
+The Android application operates primarily as a **background tracking service**. It requires a one-time login/registration and runs continuously in the background to capture and POST GPS telemetry to the Go API server. Map rendering, spatial visualizer, and UI-heavy map interactions are stripped from the mobile client to save bandwidth, battery, and development overhead.
 
 Primary users:
-- Couples
-- Family members
-- Close friends
 
-The backend must be scalable enough to support thousands of users while remaining lightweight.
+* Couples
+* Family members
+* Close friends
+
+The backend manages all location records, access permissions, and WebSocket distribution for external clients or dashboards.
 
 ---
 
 # Tech Stack
 
-## Android
+## Android (Headless & Background-First)
 
 Language
-- Kotlin
 
-UI
-- Jetpack Compose
+* Kotlin
+
+UI Framework
+
+* Jetpack Compose (Minimal setup: Auth, Service Controls, Friend Status List)
 
 Architecture
-- MVVM
-- Repository Pattern
-- Hilt Dependency Injection
-- Coroutines
-- Flow
+
+* MVVM
+* Repository Pattern
+* Hilt Dependency Injection
+* Coroutines & Flow
 
 Networking
-- Retrofit
-- OkHttp
+
+* Retrofit2 & OkHttp3
 
 JSON
-- Kotlin Serialization
 
-Location
-- Fused Location Provider
+* Kotlinx Serialization
 
-Maps
-- OpenStreetMap
+Background Engine & Telemetry
 
-Map Rendering
-- MapLibre Native Android SDK
+* Fused Location Provider API (Google Play Services)
+* Android `ForegroundService` (Persistent notification for background execution)
+* `WorkManager` (Periodic retry & batch sync when offline)
 
-Reason:
-- Completely free
-- No Google Maps billing
-- Can switch tile providers later
-- Self-hosting possible
+Local Storage (Token & Config Persistence)
 
-Offline Cache
-- MBTiles (future)
+* Jetpack DataStore (Encrypted / Preferences) for "Login Forever" persistent JWT storage
+
+*(Removed: MapLibre, OpenStreetMap SDK, MBTiles, Map UI state logic)*
 
 ---
 
 ## Backend
 
 Language
-- Go (latest stable)
+
+* Go (latest stable)
 
 Framework
-- Gin
+
+* Gin
 
 ORM
-- GORM
+
+* GORM / `pgx`
 
 Authentication
-- JWT
+
+* Long-lived JWT + Refresh Tokens (Persistent Mobile Sessions)
 
 Password Hash
-- bcrypt
+
+* bcrypt
 
 Configuration
-- dotenv
+
+* dotenv (`godotenv`)
 
 Validation
-- validator/v10
+
+* validator/v10
 
 Logging
-- zerolog
+
+* zerolog
 
 Database Migration
-- golang-migrate
+
+* golang-migrate
 
 UUID
-- google/uuid
+
+* google/uuid
 
 Realtime
-- Gorilla WebSocket
 
-Background Worker
-- Go routines
+* Gorilla WebSocket
 
-Cron Jobs
-- robfig/cron
+Background Worker / Cron
+
+* Go routines & `robfig/cron`
 
 API Documentation
-- Swagger
 
-Container
-- Docker
+* Swagger (`swaggo/swag`)
 
-Reverse Proxy
-- Nginx
+Container & Deployment
 
-Deployment
-- Docker Compose
-
-Future
-- Kubernetes Ready
+* Docker & Docker Compose
+* Nginx (Reverse Proxy)
 
 ---
 
@@ -130,737 +136,160 @@ PostgreSQL
 
 Extensions
 
-- uuid-ossp
-- postgis (future)
-
-Connection Pool
-- pgx
-
----
-
-## Storage
-
-No object storage required initially.
-
-Future:
-- MinIO
-- S3
+* `uuid-ossp`
+* `postgis`
 
 ---
 
 # Overall Architecture
 
-Android
-
+Android Client (Background Service)
 ↓
-
-REST API
-
+REST API (`POST /location/update`)
 ↓
-
-Go Backend
-
+Go Backend (Validation & Persistence)
 ↓
-
-PostgreSQL
-
+PostgreSQL / PostGIS
 ↓
-
-WebSocket
-
-↓
-
-Android
+WebSocket (`/ws` to Web Dashboards or Authorized Consumers)
 
 ---
 
-# Design Principles
+# Key Architectural Changes
 
-- Clean Architecture
-- SOLID
-- Repository Pattern
-- Dependency Injection
-- Stateless API
-- JWT Authentication
-- REST First
-- WebSocket for realtime
-- API Versioning
+1. **One-Time Auth & Perpetual Login:** The Android app receives a long-lived JWT and Refresh Token stored securely in Encrypted DataStore. Auto-re-authenticates silently on boot.
+2. **Headless Telemetry:** Mobile records GPS coordinates, activity, and device state, then issues background `POST` requests without rendering any geographical assets.
+3. **Low Resource Footprint:** Eliminating map tile fetching and canvas rendering drops client CPU, RAM, and battery usage drastically.
 
 ---
 
-# Features
+# Core Features
 
-## Authentication
+## 1. Authentication (One-Time Setup)
 
-- Register
-- Login
-- Refresh Token
-- Logout
-- Change Password
-- Delete Account
+* Register
+* Login (Persisted indefinitely via refresh token flow)
+* Auto-start service on boot (`RECEIVE_BOOT_COMPLETED`)
+* Logout & Session Revocation
 
----
+## 2. Background Location Service
 
-## User Profile
+* Persistent Foreground Service with low-priority notification bar.
+* Smart interval polling based on activity & motion:
+* Moving (> 15 km/h): Every 10 seconds
+* Walking: Every 20 seconds
+* Still: Every 5 minutes
+* Battery < 20%: Every 10 minutes
 
-- Name
-- Avatar
-- Phone (optional)
-- Email
-- Status Message
 
----
+* Offline queuing: Stores unsent coordinates locally and flushes to API when internet restores.
 
-## Friend System
+## 3. Friend & Sharing System (Minimal Text UI)
 
-Send Friend Request
-
-Accept
-
-Reject
-
-Remove Friend
-
-Block User
+* Send / Accept / Reject Friend Request
+* Request / Grant / Revoke Location Sharing Permission
+* Simple textual list displaying friends' last seen time and battery status (No map).
 
 ---
 
-## Mutual Tracking
-
-Location sharing ONLY works if BOTH users agree.
-
-Flow
-
-User A sends request
-
-↓
-
-User B accepts friend request
-
-↓
-
-User A requests location sharing
-
-↓
-
-User B approves
-
-↓
-
-Tracking enabled
-
-Either user can revoke access anytime.
-
----
-
-# Live Location
-
-Every location contains
-
-Latitude
-
-Longitude
-
-Accuracy
-
-Altitude
-
-Bearing
-
-Speed
-
-Timestamp
-
-Battery Percentage
-
-Charging Status
-
-Activity Type
-
-Mock Location Flag
-
-GPS Provider
-
----
-
-# Activity Types
-
-Unknown
-
-Still
-
-Walking
-
-Running
-
-Cycling
-
-Driving
-
----
-
-# Location Update Strategy
-
-Moving Fast
-
-Update every 10 seconds
-
-Walking
-
-Update every 20 seconds
-
-Still
-
-Update every 5 minutes
-
-If battery is below 20%
-
-Update every 10 minutes
-
-If charging
-
-Normal interval
-
----
-
-# API Design
-
-REST
-
-/api/v1/
-
-Example
-
-POST /auth/login
-
-POST /auth/register
-
-GET /user/profile
-
-PATCH /user/profile
-
-POST /friend/request
-
-POST /friend/accept
-
-DELETE /friend/remove
-
-POST /sharing/request
-
-POST /sharing/approve
-
-DELETE /sharing/revoke
-
-POST /location/update
-
-GET /location/current/{userId}
-
-GET /location/history
-
-GET /friend/list
-
-GET /notification/list
-
----
-
-# WebSocket
-
-/ws
-
-Events
-
-location:update
-
-location:subscribe
-
-sharing:update
-
-friend:update
-
-notification
-
-heartbeat
+# Data Schema & Contracts
+
+## Location Telemetry Payload
+
+`POST /api/v1/location/update`
+
+```json
+{
+  "latitude": -7.7956,
+  "longitude": 110.3695,
+  "accuracy": 5.2,
+  "altitude": 112.0,
+  "bearing": 180.0,
+  "speed": 1.2,
+  "battery_percentage": 85,
+  "is_charging": false,
+  "activity_type": "walking",
+  "is_mock": false,
+  "timestamp": "2026-08-13T15:23:41Z"
+}
+
+```
 
 ---
 
 # Database Tables
 
-users
-
-friend_requests
-
-friendships
-
-location_permissions
-
-locations
-
-devices
-
-sessions
-
-notifications
-
-refresh_tokens
-
-audit_logs
+* `users`: Basic accounts and password hashes.
+* `refresh_tokens`: Long-lived device tokens for persistent mobile logins.
+* `friendships`: Bidirectional user relationships.
+* `location_permissions`: Explicit sharing consent records.
+* `locations`: Historical spatial data point logs.
+* `devices`: Device-specific metadata and tracking configurations.
 
 ---
 
-# Users Table
+# Simplified Project Structure
 
-UUID
-
-Email
-
-Password Hash
-
-Display Name
-
-Avatar
-
-CreatedAt
-
-UpdatedAt
-
-DeletedAt
-
----
-
-# Friendships
-
-UUID
-
-UserA
-
-UserB
-
-Status
-
-CreatedAt
-
----
-
-# Location Permission
-
-UUID
-
-OwnerID
-
-ViewerID
-
-Status
-
-GrantedAt
-
-RevokedAt
-
----
-
-# Location Table
-
-UUID
-
-UserID
-
-Latitude
-
-Longitude
-
-Accuracy
-
-Altitude
-
-Bearing
-
-Speed
-
-Battery
-
-Charging
-
-Activity
-
-MockLocation
-
-Timestamp
-
-CreatedAt
-
----
-
-# Notifications
-
-Friend Request
-
-Friend Accepted
-
-Sharing Request
-
-Sharing Approved
-
-Sharing Revoked
-
-SOS
-
-Arrival
-
----
-
-# Security
-
-HTTPS Only
-
-JWT
-
-Refresh Token
-
-Password Hash
-
-Rate Limiting
-
-Input Validation
-
-SQL Injection Prevention
-
-Prepared Statements
-
-CORS
-
-Helmet Headers
-
-Audit Logs
-
----
-
-# Privacy
-
-Location sharing is disabled by default.
-
-Every permission must be granted explicitly.
-
-Users can:
-
-Pause sharing
-
-Disable sharing
-
-Remove history
-
-Delete account
-
-Revoke permissions
-
----
-
-# Future Features
-
-Geofence
-
-Home
-
-Office
-
-School
-
-Gym
-
-Arrival Notification
-
-Departure Notification
-
-Battery Alert
-
-Driving Detection
-
-Offline Cache
-
-Encrypted Location History
-
-Multiple Devices
-
-Wear OS
-
-Android Auto
-
-Emergency SOS
-
-Temporary Sharing
-
-Location Expiration
-
----
-
-# Map Provider
-
-Use OpenStreetMap.
-
-Rendering Library
-
-MapLibre Native Android
-
-Tile Source
-
-https://tile.openstreetmap.org/{z}/{x}/{y}.png
-
-Future Support
-
-MapTiler
-
-OpenMapTiles
-
-Self-hosted Tiles
-
----
-
-# API Response Format
-
-Success
-
-```json
-{
-    "success": true,
-    "message": "OK",
-    "data": {}
-}
-```
-
-Error
-
-```json
-{
-    "success": false,
-    "message": "Unauthorized",
-    "errors": []
-}
-```
-
----
-
-# Folder Structure (Backend)
-
-```
-cmd/
-    api/
-
-internal/
-    auth/
-    user/
-    friend/
-    location/
-    websocket/
-    middleware/
-    config/
-    database/
-    notification/
-    repository/
-    service/
-    handler/
-    dto/
-    models/
-
-pkg/
-    jwt/
-    logger/
-    validator/
-
-docs/
-
-migrations/
-
-scripts/
-
-docker/
-
-tests/
-```
-
----
-
-# Android Folder Structure
+## Mobile (Android)
 
 ```
 app/
+ ├── core/
+ │    ├── di/                 # Hilt Modules
+ │    ├── network/            # Retrofit & Authenticator (Auto Refresh Token)
+ │    └── datastore/          # Encrypted Session & Auth Preferences
+ ├── service/
+ │    ├── LocationService.kt  # Android ForegroundService
+ │    ├── BootReceiver.kt     # Auto-start on device reboot
+ │    └── SyncWorker.kt       # WorkManager for offline data flushing
+ ├── feature/
+ │    ├── auth/               # One-time Login & Register Compose Views
+ │    └── status/             # Simple status dashboard (Service ON/OFF, Last Sync)
+ └── domain/
+      └── repository/
 
-core/
+```
 
-network/
+## Backend (Go)
 
-database/
+```
+cmd/
+ └── api/
+internal/
+ ├── auth/       # Login, Register, Perpetual Token Refresh
+ ├── location/   # Ingestion endpoint & PostGIS store
+ ├── friend/     # Request & Approval logic
+ ├── websocket/  # Forward location updates to listeners
+ └── models/
 
-domain/
-
-repository/
-
-feature/
-
-feature/login
-
-feature/home
-
-feature/map
-
-feature/profile
-
-feature/friend
-
-feature/settings
-
-di/
-
-utils/
-
-ui/
-
-navigation/
 ```
 
 ---
 
-# Development Phases
+# Revised Development Phases
 
-## Phase 1
+## Phase 1: Core Authentication & Token Persistence
 
-Backend Foundation
+* Setup Go backend with JWT + Refresh Token logic.
+* Create minimal Android Compose login screen storing credentials in Jetpack DataStore.
 
-- Project setup
-- PostgreSQL
-- Docker
-- Authentication
-- JWT
-- Swagger
-- Migration
-- Logging
+## Phase 2: Background Location Engine
 
----
+* Implement Android `ForegroundService` with `FusedLocationProviderClient`.
+* Add auto-start on boot (`BOOT_COMPLETED`).
+* Implement adaptive interval sampling based on battery and movement.
 
-## Phase 2
+## Phase 3: Location Ingestion API & Database
 
-Friend System
+* Build Go `POST /api/v1/location/update` endpoint.
+* Store spatial records into PostgreSQL / PostGIS.
+* Implement offline buffer queue in Android (`WorkManager`).
 
-- Friend Request
-- Accept
-- Reject
-- Remove
+## Phase 4: Friend System & Permissions
 
----
+* Build text-based friend invitation and permission granting APIs.
+* Display a simple status UI on mobile (Friend status, last sync timestamp, tracking toggle switch).
 
-## Phase 3
+## Phase 5: Realtime Broadcast (Optional Consumers)
 
-Permission System
-
-- Request Sharing
-- Accept Sharing
-- Revoke Sharing
-
----
-
-## Phase 4
-
-Location API
-
-- Update Location
-- Get Current Location
-- Last Seen
-- History
-
----
-
-## Phase 5
-
-Realtime
-
-- WebSocket
-- Live Location
-- Notifications
-
----
-
-## Phase 6
-
-Android
-
-- Login
-- Map
-- Friend List
-- Live Tracking
-
----
-
-## Phase 7
-
-Optimization
-
-- Battery Optimization
-- Compression
-- Caching
-- Rate Limiting
-
----
-
-# Coding Standards
-
-Backend
-
-- Idiomatic Go
-- Context everywhere
-- No global state
-- Small packages
-- Interfaces where needed
-- Unit tests
-- Integration tests
-
-Android
-
-- Clean Architecture
-- Immutable UI State
-- StateFlow
-- ViewModel
-- Single Source of Truth
-
----
-
-# AI Development Instructions
-
-When generating code, follow these rules:
-
-1. Always generate production-ready code.
-2. Follow Clean Architecture.
-3. Use dependency injection.
-4. Never hardcode secrets.
-5. Include comments only when necessary.
-6. Return proper HTTP status codes.
-7. Validate all incoming requests.
-8. Use transactions where required.
-9. Write modular code.
-10. Include unit tests where applicable.
-11. Use Swagger annotations for every endpoint.
-12. Support Docker deployment.
-13. Use environment variables for configuration.
-14. Write reusable services.
-15. Prefer interfaces for repositories and services.
-16. Handle errors explicitly and return structured error responses.
-17. Keep business logic out of HTTP handlers.
-18. Make APIs backward-compatible through versioning (`/api/v1`).
-19. Use UTC timestamps internally and ISO 8601 format in API responses.
-20. Design database schemas with future scalability in mind (indexes, foreign keys, soft deletes where appropriate).
-
----
-
-# Long-Term Vision
-
-The architecture should eventually support:
-
-- 100,000+ users
-- Horizontal scaling
-- Kubernetes deployment
-- Redis caching
-- Message queue (NATS or RabbitMQ)
-- Push notifications
-- End-to-end encrypted location sharing (optional)
-- Self-hosted map tiles
-- Web dashboard
-- iOS application
-- Public API for third-party integrations
-
-The system should remain modular so components (authentication, location service, notification service, realtime service) can later be separated into independent services if growth requires it, while starting as a well-structured Go monolith.
+* Add WebSocket output stream on Go backend for broadcasting coordinates to web views or external monitoring tools.

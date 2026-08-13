@@ -242,6 +242,13 @@ func (s *locationService) RevokeSharing(ctx context.Context, revokerID, friendID
 }
 
 func (s *locationService) UpdateLocation(ctx context.Context, userID uuid.UUID, req dto.LocationUpdateRequest) (*dto.LocationResponse, error) {
+	ts := time.Now().UTC()
+	if req.Timestamp != "" {
+		if parsed, err := time.Parse(time.RFC3339, req.Timestamp); err == nil {
+			ts = parsed.UTC()
+		}
+	}
+
 	loc := &models.Location{
 		UserID:       userID,
 		Latitude:     req.Latitude,
@@ -250,12 +257,11 @@ func (s *locationService) UpdateLocation(ctx context.Context, userID uuid.UUID, 
 		Altitude:     req.Altitude,
 		Bearing:      req.Bearing,
 		Speed:        req.Speed,
-		Battery:      req.Battery,
-		Charging:     req.Charging,
-		Activity:     models.ActivityType(req.Activity),
-		MockLocation: req.MockLocation,
-		GPSProvider:  req.GPSProvider,
-		Timestamp:    time.Now().UTC(),
+		Battery:      req.BatteryPercentage,
+		Charging:     req.IsCharging,
+		Activity:     models.ActivityType(req.ActivityType),
+		MockLocation: req.IsMock,
+		Timestamp:    ts,
 	}
 
 	if err := s.locationRepo.CreateLocation(ctx, loc); err != nil {
@@ -350,18 +356,17 @@ func (s *locationService) GetLocationHistory(ctx context.Context, viewerID, owne
 
 func toLocationResponse(l *models.Location) *dto.LocationResponse {
 	return &dto.LocationResponse{
-		UserID:       l.UserID.String(),
-		Latitude:     l.Latitude,
-		Longitude:    l.Longitude,
-		Accuracy:     l.Accuracy,
-		Altitude:     l.Altitude,
-		Bearing:      l.Bearing,
-		Speed:        l.Speed,
-		Battery:      l.Battery,
-		Charging:     l.Charging,
-		Activity:     string(l.Activity),
-		MockLocation: l.MockLocation,
-		GPSProvider:  l.GPSProvider,
-		Timestamp:    l.Timestamp.Format(time.RFC3339),
+		UserID:            l.UserID.String(),
+		Latitude:          l.Latitude,
+		Longitude:         l.Longitude,
+		Accuracy:          l.Accuracy,
+		Altitude:          l.Altitude,
+		Bearing:           l.Bearing,
+		Speed:             l.Speed,
+		BatteryPercentage: l.Battery,
+		IsCharging:        l.Charging,
+		ActivityType:      string(l.Activity),
+		IsMock:            l.MockLocation,
+		Timestamp:         l.Timestamp.Format(time.RFC3339),
 	}
 }
